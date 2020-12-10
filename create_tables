@@ -1,0 +1,45 @@
+CREATE TABLE categories (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(40) NOT NULL
+);
+
+CREATE TABLE tickets (
+     id INT PRIMARY KEY AUTO_INCREMENT,
+     category_id INT,
+     name VARCHAR(40) NOT NULL,
+     description VARCHAR(400),
+     price INT,
+     endTimeReservation TIMESTAMP,
+     reservationPrice INT,
+     status ENUM('available', 'pending', 'sold', 'reserved'),
+     FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
+CREATE TABLE reservations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    ticket_id INT,
+    status ENUM('waiting', 'payed'),
+    complete BOOLEAN,
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id)
+);
+
+CREATE TABLE orders (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    ticket_id INT,
+    status ENUM('placed', 'payed'),
+    complete BOOLEAN,
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id)
+);
+
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(40) NOT NULL,
+    password VARCHAR(40) NOT NULL
+);
+
+
+insert categories(name) values ('Test');
+insert tickets(name) value ('Detective');
+insert reservations(status) value ('waiting');
+insert orders(status) value ('placed');
+insert users(username, password) value ('user', 'password');
