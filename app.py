@@ -13,7 +13,7 @@ def main():
 
 with make_server('', 8080, app) as server:
     print("Main http://127.0.0.1:8080")
-    print("Hello World! http://127.0.0.1:8080/api/v1/hello-world-8")
+    print("\nHello World! http://127.0.0.1:8080/api/v1/hello-world-8")
     server.serve_forever()
 
 if __name__ == '__main__':
