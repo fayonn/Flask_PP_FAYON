@@ -1,8 +1,13 @@
-from migrate import app
-from migrate import db
-from models import User
-from flask import request, jsonify, json
+from migrate import *
+from models import *
+from flask import request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import create_access_token, get_jwt_identity
+from flask_jwt_extended import jwt_required
+
+
+def get_current_user():
+    return User.query.filter_by(username=get_jwt_identity()).first()
 
 
 @app.route('/user/create', methods=['POST'])
@@ -24,6 +29,7 @@ def create_user():
 
 
 @app.route('/user/<id>', methods=['PUT', 'DELETE'])
+@jwt_required
 def user(id):
     user = User.query.filter_by(id=id).first()
     if user is None:
@@ -49,7 +55,7 @@ def user(id):
         db.session.delete(user)
         db.session.commit()
         # return jsonify(status='deleted', name=user.userName, email=user.email), 201
-        return jsonify({"status": "deleted",  
+        return jsonify({"status": "deleted",
                         "name": user.username,
                         "email": user.email}), 201
 
@@ -65,7 +71,7 @@ def login():
         return jsonify({"msg": "Not Found"}), 404
     for i in current_user:
         if check_password_hash(i.password, password):
-            return jsonify({"status": "logged_in"}), 200
+            return jsonify(access_token=create_access_token(identity=username)), 200
     else:
         return jsonify({"Error": "Wrong password"}), 401
 
@@ -73,4 +79,3 @@ def login():
 @app.route('/logout', methods=['GET'])
 def logout():
     return jsonify({"msg": "Successfully, you have logged out"}), 200
-
