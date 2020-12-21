@@ -1,10 +1,15 @@
-from migrate import app
-from migrate import db
+from migrate import *
 from flask import request, jsonify
-from models import Order, Reservation, Ticket
+from models import *
+from flask_jwt_extended import get_jwt_identity, jwt_required
+
+
+def get_current_user():
+    return User.query.filter_by(username=get_jwt_identity()).first()
 
 
 @app.route('/store/inventory', methods=['GET'])
+@jwt_required
 def show_store_inventory():
     status = request.json.get('status', None)
     if not status:
@@ -20,6 +25,7 @@ def show_store_inventory():
 
 
 @app.route('/store/reservation', methods=['POST'])  # створення бронювання
+@jwt_required
 def reservation_store():
     ticket_id = request.json.get('ticket_id', None)
     ticket = Ticket.query.filter_by(id=ticket_id).first()
@@ -40,6 +46,7 @@ def reservation_store():
 
 
 @app.route('/store/reservation/<id>', methods=['GET', 'DELETE'])  # оновлення
+@jwt_required
 def reservation_tools(id):
     ticket_id = request.json.get('ticket_id', None)
     ticket = Ticket.query.filter_by(id=ticket_id).first()
@@ -67,6 +74,7 @@ def reservation_tools(id):
 
 
 @app.route('/store/order', methods=['POST'])
+@jwt_required
 def order_the_ticket():
     ticket_id = request.json.get('ticket_id', None)
     ticket = Ticket.query.filter_by(id=ticket_id).first()
@@ -76,8 +84,8 @@ def order_the_ticket():
         return jsonify({"msg": "Forbidden"}), 403
     if ticket_id:
         new_order = Order(ticket=ticket,
-                                      ticket_id=ticket_id,
-                                      status='waiting')
+                          ticket_id=ticket_id,
+                          status='waiting')
         db.session.add(new_order)
         ticket.status = 'pending'
         db.session.commit()
@@ -87,6 +95,7 @@ def order_the_ticket():
 
 
 @app.route('/store/order/<id>', methods=['GET', 'DELETE'])  #
+@jwt_required
 def order_tools(id):
     ticket_id = request.json.get('ticket_id', None)
     ticket = Ticket.query.filter_by(id=ticket_id).first()
