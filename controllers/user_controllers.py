@@ -9,17 +9,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def create_user():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
-    pw_hash = generate_password_hash(password)
     email = request.json.get('email', None)
-    if username and password and email and User.query.filter_by(email=email).first() is None:
+    if (username is not None) and password is not None and email is not None:
+        if User.query.filter_by(email=email).first() is not None:
+            return jsonify({"status": 'Email already used'}), 400
+        pw_hash = generate_password_hash(password)
         new_user = User(username=username, email=email, password=pw_hash)
         db.session.add(new_user)
         db.session.commit()
 
         return jsonify({"status": 'created'}), 200
-
-    if User.query.filter_by(email=email).first() is not None:
-        return jsonify({"status": 'Email already used'}), 400
     else:
         return jsonify({"status": 'Bad data'}), 204
 
