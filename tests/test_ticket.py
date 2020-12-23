@@ -1,10 +1,10 @@
 from app import app
 from models import *
+from tests.config import *
 
 db.create_all()
 t_app = app.test_client()
-name = 'some name'
-email = 'test@mail.com'
+
 
 def get_user():
     return User.query.filter_by(email=email).first()
@@ -18,9 +18,18 @@ def get_ticket():
     return Ticket.query.filter_by(name=name).first()
 
 
-def test_create_user_200():
-    data = t_app.post('/user/create', json={'username': 'Nazar', 'email': email, 'password': '123'})
-    assert '200' in str(data)
+def create_user():
+    t_app.post('/user/create', json={'username': 'Nazar', 'email': email, 'password': '123'})
+
+
+def delete_user():
+    t_app.delete('/user/' + str(get_user().id),
+                 json={'username': 'Nazar', 'email': email, 'password': '123'},
+                 headers={'Authorization': 'Bearer ' + str(get_token())})
+
+
+def test_start():
+    create_user()
 
 
 def test_create_ticket_200():
@@ -66,13 +75,18 @@ def test_order_ticket_put_200():
     assert '200' in str(data)
 
 
+def test_order_ticket_put_204():
+    data = t_app.put('/ticket/' + str(get_ticket().id),
+                     json={'name': name, 'description': 'description', 'price': '300',
+                           'endTimeReservation': '2013-01-12 15:27:43', 'status': 'end'},
+                     headers={'Authorization': 'Bearer ' + str(get_token())})
+    assert '204' in str(data)
+
+
 def test_order_ticket_delete_200():
     data = t_app.delete('/ticket/' + str(get_ticket().id), headers={'Authorization': 'Bearer ' + str(get_token())})
     assert '200' in str(data)
 
 
-def test_user_delete_201():
-    data = t_app.delete('/user/' + str(get_user().id),
-                        json={'username': 'Nazar', 'email': email, 'password': '123'},
-                        headers={'Authorization': 'Bearer ' + str(get_token())})
-    assert '201' in str(data)
+def test_end():
+    delete_user()

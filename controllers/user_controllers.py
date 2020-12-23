@@ -47,7 +47,7 @@ def user(id):
         if username == '' or password == '':
             return jsonify({"msg": "Bad username or password"}), 401
         user.username = username
-        user.password = password
+        user.password = generate_password_hash(password)
         db.session.commit()
         return jsonify({"name": user.username,
                         "email": user.email}), 201
