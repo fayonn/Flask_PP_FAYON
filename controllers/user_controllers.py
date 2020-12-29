@@ -14,17 +14,16 @@ def get_current_user():
 def create_user():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
-    pw_hash = generate_password_hash(password)
     email = request.json.get('email', None)
-    if username and password and email and User.query.filter_by(email=email).first() is None:
+    if (username is not None) and password is not None and email is not None:
+        if User.query.filter_by(email=email).first() is not None:
+            return jsonify({"status": 'Email already used'}), 400
+        pw_hash = generate_password_hash(password)
         new_user = User(username=username, email=email, password=pw_hash)
         db.session.add(new_user)
         db.session.commit()
 
         return jsonify({"status": 'created'}), 200
-
-    if User.query.filter_by(email=email).first() is not None:
-        return jsonify({"status": 'Email already used'}), 400
     else:
         return jsonify({"status": 'Bad data'}), 204
 
@@ -48,7 +47,7 @@ def user(id):
         if username == '' or password == '':
             return jsonify({"msg": "Bad username or password"}), 401
         user.username = username
-        user.password = password
+        user.password = generate_password_hash(password)
         db.session.commit()
         return jsonify({"name": user.username,
                         "email": user.email}), 201

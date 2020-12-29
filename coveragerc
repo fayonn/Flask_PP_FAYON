@@ -1,0 +1,18 @@
+[run]
+branch = True
+source =
+    .
+omit =
+    tests/*
+    C:/Users/Nazar/AppData/Roaming/Python/Python37/site-packages/six.py
+
+
+[report]
+exclude_lines =
+    pragma: no cover
+
+    def repr
+    if self.debug
+
+    if 0:
+    if name == .main.:

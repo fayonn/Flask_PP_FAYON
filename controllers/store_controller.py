@@ -33,16 +33,13 @@ def reservation_store():
         return jsonify({"msg": "Not Found"}), 404
     if ticket.status != 'available':
         return jsonify({"msg": "Forbidden"}), 403
-    if ticket_id:
-        new_reservation = Reservation(ticket=ticket,
-                                      ticket_id=ticket_id,
-                                      status='waiting')
-        ticket.status = 'pending'
-        db.session.add(new_reservation)
-        db.session.commit()
-        return jsonify({"status": 'created'}), 200
-    else:
-        return jsonify({"status": 'Bad data'}), 204
+    new_reservation = Reservation(ticket=ticket,
+                                  ticket_id=ticket_id,
+                                  status='waiting')
+    ticket.status = 'pending'
+    db.session.add(new_reservation)
+    db.session.commit()
+    return jsonify({"status": 'created'}), 200
 
 
 @app.route('/store/reservation/<id>', methods=['GET', 'DELETE'])  # оновлення
